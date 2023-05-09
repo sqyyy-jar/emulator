@@ -88,6 +88,7 @@ pub enum Component {
     Not(NotGate),
     Or(OrGate),
     And(AndGate),
+    Xor(XorGate),
 }
 
 impl Component {
@@ -105,6 +106,7 @@ impl Component {
             Component::Not(not) => not.check_bounds(input_count),
             Component::Or(or) => or.check_bounds(input_count),
             Component::And(and) => and.check_bounds(input_count),
+            Component::Xor(xor) => xor.check_bounds(input_count),
         }
     }
 
@@ -114,6 +116,7 @@ impl Component {
             Component::Not(not) => not.emulate(inputs),
             Component::Or(or) => or.emulate(inputs),
             Component::And(and) => and.emulate(inputs),
+            Component::Xor(xor) => xor.emulate(inputs),
         }
     }
 }
@@ -202,4 +205,38 @@ pub fn and(components: impl IntoIterator<Item = Component>) -> Component {
     }
     assert!(inputs.len() > 1, "And gate requires at least two inputs");
     Component::And(AndGate { inputs })
+}
+
+pub struct XorGate {
+    inputs: Vec<Component>,
+}
+
+impl XorGate {
+    fn check_bounds(&self, input_count: usize) -> Result<()> {
+        for input in &self.inputs {
+            input.check_bounds(input_count)?;
+        }
+        Ok(())
+    }
+
+    fn emulate(&self, inputs: &[bool]) -> bool {
+        let mut check = false;
+        for input in &self.inputs {
+            let result = input.emulate(inputs);
+            if result && check {
+                return false;
+            }
+            check = result;
+        }
+        true
+    }
+}
+
+pub fn xor(components: impl IntoIterator<Item = Component>) -> Component {
+    let mut inputs = Vec::new();
+    for component in components.into_iter() {
+        inputs.push(component);
+    }
+    assert!(inputs.len() > 1, "And gate requires at least two inputs");
+    Component::Xor(XorGate { inputs })
 }
