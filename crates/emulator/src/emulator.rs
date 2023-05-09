@@ -226,9 +226,11 @@ impl XorGate {
             if result && check {
                 return false;
             }
-            check = result;
+            if result {
+                check = true;
+            }
         }
-        true
+        check
     }
 }
 
