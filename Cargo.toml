@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crates/emulator",
+    "crates/macros",
+    "crates/testing"
+]
